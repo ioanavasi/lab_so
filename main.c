@@ -33,11 +33,11 @@ int main(int argc, char **argv){
 
     struct dirent *dnt;
     char buffer[1024] = "";
-    while (dnt) {
-        dnt = readdir(d);
-        if (strcmp(dnt->d_name, ".") == 0 || strcmp(dnt->d_name, "..") == 0) {
+    while (dnt = readdir(d)) {
+        if (strcmp(dnt -> d_name, ".") == 0 || strcmp(dnt -> d_name, "..") == 0) {
             continue;
         }
+        printf("%s\n", dnt -> d_name);
         strcpy(filePath, "");
         strcat(filePath, argv[1]);
         strcat(filePath, "/");
@@ -116,10 +116,7 @@ int main(int argc, char **argv){
                 (fst.st_mode & S_IRUSR) ? 'R' : '-', (fst.st_mode & S_IWUSR) ? 'W' : '-', (fst.st_mode & S_IXUSR) ? 'X' : '-',
                 (fst.st_mode & S_IRGRP) ? 'R' : '-', (fst.st_mode & S_IWGRP) ? 'W' : '-', (fst.st_mode & S_IXGRP) ? 'X' : '-',
                 (fst.st_mode & S_IROTH) ? 'R' : '-', (fst.st_mode & S_IWOTH) ? 'W' : '-', (fst.st_mode & S_IXOTH) ? 'X' : '-');
-                if (close(fd) < 0) {
-                    perror("Error closing output file");
-                    continue;
-                }
+                close(fd);
             }
             else {
                 snprintf(buffer, 1024, 
@@ -137,15 +134,15 @@ int main(int argc, char **argv){
                 continue;
             }
         }
-        if (close(fd_out) < 0) {
+    }
+    if (close(fd_out) < 0) {
             perror("Error closing output file");
-            continue;
+            exit(-1);
         }
          if (closedir(d) < 0) {
             perror("Error closing output file");
-            continue;
+             exit(-1);
          }
-    }
 }
 
 
