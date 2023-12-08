@@ -1,0 +1,11 @@
+nume fisier: imagine_4.bmp
+inaltime: 1309
+lungime: 762
+dimensiune: 2995046
+identificatorul utilizatorului: 1000
+timpul ultimei moldificari:Fri Dec  8 23:17:23 2023
+contorul de legaturi: 1
+drepturi de acces user: RW-
+drepturi de acces grup: R--
+drepturi de acces altii: R--
+
