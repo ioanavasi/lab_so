@@ -114,6 +114,7 @@ int main(int argc, char **argv) {
         if (strcmp(dnt->d_name, ".") == 0 || strcmp(dnt->d_name, "..") == 0) {
             continue;
         }
+        // printf("Processing file: %s\n", dnt->d_name);
 
         strcpy(outpath, "");
         strcat(outpath, argv[2]);
@@ -121,7 +122,7 @@ int main(int argc, char **argv) {
         strcat(outpath, dnt->d_name);
         strcat(outpath, "_statistica.txt");
 
-        int fd_out = creat(outpath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
+        int fd_out = open(outpath, O_CREAT | O_WRONLY | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
         if (fd_out < 0) {
             perror("New file couldn't be created");
             exit(EXIT_FAILURE);
@@ -150,6 +151,7 @@ int main(int argc, char **argv) {
         }
 
         if (pid == 0 && S_ISDIR(fst.st_mode)) { // child process
+            // printf("Processing file: %s\n", dnt->d_name);
             snprintf(buffer, 1024, "nume director: %s\n"
             "identificatorul utilizatorului(uid): %d\n"
             "drepturi de acces user: %c%c%c\n"
@@ -166,6 +168,7 @@ int main(int argc, char **argv) {
         }
 
         if(pid == 0 && S_ISLNK(fst.st_mode)) { // child process
+            // printf("Processing file: %s\n", dnt->d_name);
             struct stat target;
             if (stat(filePath, &target) < 0) {
                 perror("Could not use stat");
@@ -187,6 +190,7 @@ int main(int argc, char **argv) {
         }
 
         if (S_ISREG(fst.st_mode)) {
+            // printf("Processing file: %s\n", dnt->d_name);
             int sizefp = strlen(filePath);
             char timeStr[32] = "";
             if (pid == 0) {
@@ -269,7 +273,6 @@ int main(int argc, char **argv) {
                     exit(-1);
                 }
                 execlp("cat", "cat", filePath, NULL);
-                close(pipe1_fd[1]);
                 exit(-1);
                 }
                 else {
@@ -284,23 +287,25 @@ int main(int argc, char **argv) {
                             perror("Error redirecting stdout");
                             exit(-1);
                         }
+
                         close(pipe2_fd[0]);
+
                         if (dup2(pipe2_fd[1], 1) < 0) {
                             perror("Error redirecting stdout");
                             exit(-1);
                         }
-                        execlp("sh", "sh", "./script.sh", argv[3], NULL);
+                        execlp("sh", "sh", "./script.sh", argv[3], (char*)NULL);
                         exit(-1);
                     }
                     else {
+                        close(pipe1_fd[0]);
+                        close(pipe1_fd[1]);
                         close(pipe2_fd[1]);
                         char readbuff[16];
-                        if (read(pipe2_fd[0], readbuff, 16) < 0) {
+                        if (read(pipe2_fd[0], readbuff, sizeof(readbuff)) < 0) {
                             perror("Read error");
                             exit(-1);
                         }
-                        close(pipe1_fd[0]);
-                        close(pipe1_fd[1]);
                         counter += atoi(readbuff);
                     }
                 }
